@@ -1,0 +1,71 @@
+services:
+  app:
+    build:
+      context: .
+      target: production
+    container_name: nestjs-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=mongodb://mongo:27017/nestjs-db
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - backend
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+  mongo:
+    image: mongo:7-jammy
+    container_name: nestjs-mongo
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Development override: docker compose --profile dev up
+  app-dev:
+    build:
+      context: .
+      target: build
+    container_name: nestjs-app-dev
+    profiles:
+      - dev
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/nestjs-db
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - backend
+    command: npm run start:dev
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  mongo_data:
