@@ -5,9 +5,10 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { envConfig } from './config/env.config.js';
 import { winstonConfig } from './config/logger.config.js';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
-  imports: [WinstonModule.forRoot(winstonConfig), MongooseModule.forRoot(envConfig.MONGODB_URI)],
+  imports: [WinstonModule.forRoot(winstonConfig), MongooseModule.forRoot(envConfig.MONGODB_URI), UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
