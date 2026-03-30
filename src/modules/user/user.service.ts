@@ -9,4 +9,8 @@ export class UserService extends BaseRepository<User> {
   constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {
     super(userModel);
   }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email }).select('+password').exec();
+  }
 }

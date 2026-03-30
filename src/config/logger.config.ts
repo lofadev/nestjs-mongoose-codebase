@@ -9,7 +9,7 @@ const { combine, timestamp, printf, colorize, errors, json } = winston.format;
 const consoleFormat = printf((info) => {
   const ts = String(info.timestamp);
   const ctx = info.context as string | undefined;
-  const trace = info.trace as string | undefined;
+  const trace = (info.trace ?? info.stack) as string | undefined;
 
   let log = `${ts} [${info.level}]`;
   if (ctx) log += ` [${ctx}]`;

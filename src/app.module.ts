@@ -1,15 +1,21 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { WinstonModule } from 'nest-winston';
-import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
-import { envConfig } from './config/env.config.js';
-import { winstonConfig } from './config/logger.config.js';
-import { UserModule } from './modules/user/user.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { envConfig, winstonConfig } from './config';
+import { AuthModule, JwtAuthGuard, RolesGuard } from './modules/auth';
+import { UserModule } from './modules/user';
 
 @Module({
-  imports: [WinstonModule.forRoot(winstonConfig), MongooseModule.forRoot(envConfig.MONGODB_URI), UserModule],
+  imports: [
+    WinstonModule.forRoot(winstonConfig),
+    MongooseModule.forRoot(envConfig.MONGODB_URI),
+    AuthModule,
+    UserModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: JwtAuthGuard }, { provide: APP_GUARD, useClass: RolesGuard }],
 })
 export class AppModule {}

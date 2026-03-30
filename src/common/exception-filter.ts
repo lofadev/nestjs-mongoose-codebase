@@ -1,7 +1,7 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { Error as MongooseError } from 'mongoose';
-import { ApiResponse, ValidationErrorDetail, ValidationException } from './response.js';
+import { ApiResponse, ValidationErrorDetail, ValidationException } from './response';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {

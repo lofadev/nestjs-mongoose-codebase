@@ -3,9 +3,9 @@ import { NestFactory, Reflector } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
-import { AppModule } from './app.module.js';
-import { AllExceptionsFilter, TransformInterceptor, ValidationException, formatValidationErrors } from './common/index';
-import { Environment, envConfig } from './config/env.config.js';
+import { AppModule } from './app.module';
+import { AllExceptionsFilter, TransformInterceptor, ValidationException, formatValidationErrors } from './common';
+import { Environment, envConfig } from './config';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -60,4 +60,7 @@ async function bootstrap() {
   await app.listen(envConfig.PORT);
 }
 
-void bootstrap();
+bootstrap().catch((err) => {
+  console.error('Error starting server', err);
+  process.exit(1);
+});

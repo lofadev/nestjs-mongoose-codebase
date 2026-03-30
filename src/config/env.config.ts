@@ -1,7 +1,7 @@
 import { plainToInstance } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsNumberString, IsOptional, IsString, validateSync } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumberString, IsOptional, IsString, ValidateIf, validateSync } from 'class-validator';
 import * as dotenv from 'dotenv';
-
+import { StringValue } from 'ms';
 dotenv.config();
 
 export enum Environment {
@@ -15,7 +15,7 @@ export class EnvironmentVariables {
   NODE_ENV: Environment = Environment.Development;
 
   @IsNumberString()
-  PORT = 3000;
+  PORT = 8080;
 
   @IsString()
   LOG_LEVEL = 'debug';
@@ -23,6 +23,11 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   JWT_SECRET: string;
+
+  @IsOptional()
+  @ValidateIf((_, value) => typeof value !== 'number')
+  @IsString()
+  JWT_ACCESS_EXPIRE: number | StringValue = '1d';
 
   @IsString()
   @IsOptional()

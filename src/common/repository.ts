@@ -1,4 +1,4 @@
-import { ClientSession, Document, Model, PipelineStage, QueryFilter, Types, UpdateQuery } from 'mongoose';
+import { ClientSession, Model, PipelineStage, QueryFilter, Types, UpdateQuery } from 'mongoose';
 
 export interface PaginateOptions {
   page?: number;
@@ -18,14 +18,14 @@ export interface PaginateResult<T> {
   hasPrevPage: boolean;
 }
 
-export abstract class BaseRepository<T extends Document> {
+export abstract class BaseRepository<T> {
   constructor(protected readonly model: Model<T>) {}
 
   // ── Create ──────────────────────────────────────────────
 
   async create(data: Partial<T>, session?: ClientSession): Promise<T> {
     const doc = new this.model(data);
-    return doc.save({ session });
+    return doc.save({ session }) as unknown as Promise<T>;
   }
 
   async createMany(data: Partial<T>[], session?: ClientSession): Promise<T[]> {
@@ -52,7 +52,7 @@ export abstract class BaseRepository<T extends Document> {
   async find(filter: QueryFilter<T> = {} as QueryFilter<T>, session?: ClientSession): Promise<T[]> {
     const query = this.model.find(filter);
     if (session) query.session(session);
-    return query.exec();
+    return query.lean().exec();
   }
 
   async paginate(
@@ -73,7 +73,7 @@ export abstract class BaseRepository<T extends Document> {
       }
     }
 
-    const [data, total] = await Promise.all([query.exec(), this.model.countDocuments(filter).exec()]);
+    const [data, total] = await Promise.all([query.lean().exec(), this.model.countDocuments(filter).lean().exec()]);
 
     const totalPages = Math.ceil(total / limit);
 
