@@ -61,7 +61,7 @@ services:
         condition: service_healthy
     networks:
       - backend
-    command: npm run start:dev
+    command: pnpm start:dev
 
 networks:
   backend:

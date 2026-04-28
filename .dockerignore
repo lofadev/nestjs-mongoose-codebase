@@ -19,3 +19,4 @@ docker-compose*
 eslint.config.*
 jest.config.*
 tsconfig.build.json
+.pnpm-store

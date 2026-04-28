@@ -1,32 +1,41 @@
 # ============================================
 # Stage 1: Install production dependencies only
 # ============================================
-FROM node:22-alpine AS deps
+FROM node:24-alpine AS deps
 WORKDIR /app
 
-COPY package.json package-lock.json ./
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
 
-RUN npm ci --only=production --ignore-scripts \
-    && npm cache clean --force
+# Fetch packages first (optimal layer caching — lock file rarely changes)
+COPY pnpm-lock.yaml ./
+RUN pnpm fetch --prod
+
+COPY package.json ./
+RUN pnpm install --frozen-lockfile --prod --offline
 
 # ============================================
 # Stage 2: Build application with SWC
 # ============================================
-FROM node:22-alpine AS build
+FROM node:24-alpine AS build
 WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm ci --ignore-scripts && npm cache clean --force
+RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
+
+COPY pnpm-lock.yaml ./
+RUN pnpm fetch
+
+COPY package.json ./
+RUN pnpm install --frozen-lockfile --offline
 
 COPY tsconfig.json nest-cli.json ./
 COPY src ./src
 
-RUN npx nest build
+RUN pnpm build
 
 # ============================================
 # Stage 3: Production runtime (minimal image)
 # ============================================
-FROM node:22-alpine AS production
+FROM node:24-alpine AS production
 
 # Security: non-root user
 RUN addgroup -g 1001 -S appgroup \
