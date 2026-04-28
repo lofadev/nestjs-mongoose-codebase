@@ -1,7 +1,7 @@
 # ============================================
 # Stage 1: Install production dependencies only
 # ============================================
-FROM node:24-alpine AS deps
+FROM node:22-alpine AS deps
 WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
@@ -16,7 +16,7 @@ RUN pnpm install --frozen-lockfile --prod --offline
 # ============================================
 # Stage 2: Build application with SWC
 # ============================================
-FROM node:24-alpine AS build
+FROM node:22-alpine AS build
 WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
@@ -35,7 +35,7 @@ RUN pnpm build
 # ============================================
 # Stage 3: Production runtime (minimal image)
 # ============================================
-FROM node:24-alpine AS production
+FROM node:22-alpine AS production
 
 # Security: non-root user
 RUN addgroup -g 1001 -S appgroup \
